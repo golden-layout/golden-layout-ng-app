@@ -1,0 +1,57 @@
+import { Component, Inject } from '@angular/core';
+import { ComponentContainer } from 'golden-layout';
+import { BaseComponentDirective } from './base-component.directive';
+
+@Component({
+  selector: 'app-color-component',
+  template: `
+    <p id="title" [style.color]="color">{{title}}</p>
+    <input #input id="input" type="text" [value]="initialColor" (input)="updateColor(input.value)">
+  `,
+  styles: [`
+    #title {
+      textAlign: left;
+    }
+  `
+  ]
+})
+export class ColorComponent extends BaseComponentDirective {
+
+  public title: string;
+  public color: string;
+  public initialColor: string;
+
+  constructor(@Inject(BaseComponentDirective.GoldenLayoutContainerInjectionToken) private container: ComponentContainer) {
+    super();
+
+    this.title = this.container.title;
+
+    this.container.stateRequestEvent = () => this.handleContainerStateRequestEvent();
+
+    const state = this.container.getInitialState();
+    let color: string;
+    if (state === undefined) {
+        color = ColorComponent.undefinedColor;
+    } else {
+        if (typeof state !== 'string') {
+            color = 'IndianRed';
+        } else {
+            color = state;
+        }
+    }
+    this.color = color;
+    this.initialColor = color;
+  }
+
+  updateColor(value: string) {
+    this.color = value ?? ColorComponent.undefinedColor;
+  }
+
+  handleContainerStateRequestEvent(): string | undefined {
+    return this.color === ColorComponent.undefinedColor ? undefined : this.color;
+  }
+}
+
+export namespace ColorComponent {
+  export const undefinedColor = 'MediumVioletRed';
+}
