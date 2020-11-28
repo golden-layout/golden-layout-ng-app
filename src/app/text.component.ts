@@ -10,7 +10,7 @@ import { BaseComponentDirective } from './base-component.directive';
   styles: [`#input { display: block; }`]
 })
 export class TextComponent extends BaseComponentDirective {
-  private value: string;
+  private _value: string;
   public initialValue: string;
 
   constructor(@Inject(BaseComponentDirective.GoldenLayoutContainerInjectionToken) private container: ComponentContainer) {
@@ -29,21 +29,26 @@ export class TextComponent extends BaseComponentDirective {
         const textState: TextComponent.State = state as TextComponent.State;
         textValue = textState.text;
       }
-      this.value = textValue;
+      this._value = textValue;
       this.initialValue = textValue;
     }
   }
 
+  setInitialValue(value: string) {
+    this.initialValue = value;
+    this._value = value;
+  }
+
   updateValue(value: string) {
-    this.value = value;
+    this._value = value;
   }
 
   handleContainerStateRequestEvent(): TextComponent.State | undefined {
-    if (this.value === TextComponent.undefinedTextValue) {
+    if (this._value === TextComponent.undefinedTextValue) {
       return undefined;
     } else {
       return {
-        text: this.value,
+        text: this._value,
       };
     }
   }

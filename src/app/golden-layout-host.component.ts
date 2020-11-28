@@ -1,9 +1,8 @@
-import { ApplicationRef, Component, ComponentRef, ElementRef, EmbeddedViewRef } from '@angular/core';
+import { ApplicationRef, Component, ComponentRef, ElementRef, EmbeddedViewRef, OnDestroy } from '@angular/core';
 import {
-    ComponentContainer,
-    ComponentItem,
-    GoldenLayout,
-    UserLayoutConfig
+  ComponentContainer,
+  ComponentItem,
+  GoldenLayout
 } from "golden-layout";
 import { BaseComponentDirective } from './base-component.directive';
 import { BooleanComponent } from './boolean.component';
@@ -23,26 +22,35 @@ import { TextComponent } from './text.component';
     `,
   ],
 })
-export class GoldenLayoutHostComponent {
+export class GoldenLayoutHostComponent implements OnDestroy {
   private _goldenLayout: GoldenLayout;
-
   private _containerMap = new Map<ComponentContainer, ComponentRef<BaseComponentDirective>>();
 
-  get element() { return this._elRef.nativeElement; }
+  get goldenLayout() { return this._goldenLayout; }
 
   constructor(private _elRef: ElementRef<HTMLElement>,
     private appRef: ApplicationRef,
     private goldenLayoutComponentService: GoldenLayoutComponentService,
   ) {
+    this._goldenLayout = new GoldenLayout(this._elRef.nativeElement);
+    this._goldenLayout.getComponentEvent = (container) => this.handleGetComponentEvent(container);
+    this._goldenLayout.releaseComponentEvent = (container, component) => this.handleReleaseComponentEvent(container, component);
+
     this.goldenLayoutComponentService.registerComponentType(ColorComponent.name, ColorComponent);
     this.goldenLayoutComponentService.registerComponentType(TextComponent.name, TextComponent);
     this.goldenLayoutComponentService.registerComponentType(BooleanComponent.name, BooleanComponent);
   }
 
-  setGoldenLayout(value: GoldenLayout) {
-    this._goldenLayout = value;
-    this._goldenLayout.getComponentEvent = (container) => this.handleGetComponentEvent(container);
-    this._goldenLayout.releaseComponentEvent = (container, component) => this.handleReleaseComponentEvent(container, component);
+  ngOnDestroy() {
+    this._goldenLayout.destroy();
+  }
+
+  setSize(width: number, height: number) {
+    this._goldenLayout.setSize(width, height)
+  }
+
+  getComponentRef(container: ComponentContainer) {
+    return this._containerMap.get(container);
   }
 
   private handleGetComponentEvent(container: ComponentContainer) {
@@ -67,8 +75,4 @@ export class GoldenLayoutHostComponent {
       this._containerMap.delete(container);
     }
   }
-}
-
-export namespace GoldenLayoutHostComponent {
-  export const emptyLayout: UserLayoutConfig = {};
 }

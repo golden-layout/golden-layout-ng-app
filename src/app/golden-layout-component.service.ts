@@ -1,7 +1,5 @@
 import { ComponentFactoryResolver, Injectable, Injector, StaticProvider, Type } from '@angular/core';
-import {
-    ComponentContainer
-} from "golden-layout";
+import { ComponentContainer } from "golden-layout";
 import { BaseComponentDirective } from './base-component.directive';
 
 @Injectable({

@@ -423,10 +423,5 @@ const tabDropdownLayout: Layout = {
     config: tabDropdownConfig,
 };
 
-export interface PredefinedLayouts {
-    colorComponentCompatible: Layout[];
-    allComponents: Layout[];
-}
-
-export const prefinedLayouts = [miniRowLayout, miniStackLayout, responsiveLayout, standardLayout, tabDropdownLayout];
-
+export const predefinedLayouts: readonly Layout[] = [miniRowLayout, miniStackLayout, responsiveLayout, standardLayout, tabDropdownLayout];
+export const predefinedLayoutNames: readonly string[] = predefinedLayouts.map((layout) => layout.name);

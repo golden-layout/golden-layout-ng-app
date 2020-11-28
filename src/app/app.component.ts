@@ -1,7 +1,4 @@
 import { AfterViewInit, Component, OnDestroy, ViewChild } from '@angular/core';
-import {
-  GoldenLayout
-} from "golden-layout";
 import { ControlsComponent } from './controls.component';
 import { GoldenLayoutHostComponent } from './golden-layout-host.component';
 
@@ -26,17 +23,14 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   title = 'golden-layout-ng-app';
 
   private _controlsElement: HTMLElement;
-  private _goldenLayout: GoldenLayout;
   private _windowResizeListener = () => this.handleWindowResizeEvent();
 
-  @ViewChild('controls') private controlsComponent: ControlsComponent; 
-  @ViewChild('goldenLayoutHost') private goldenLayoutHostComponent: GoldenLayoutHostComponent; 
+  @ViewChild('controls') private _controlsComponent: ControlsComponent; 
+  @ViewChild('goldenLayoutHost') private _goldenLayoutHostComponent: GoldenLayoutHostComponent; 
 
   ngAfterViewInit() {
-    this._controlsElement = this.controlsComponent.element;
-    this._goldenLayout = new GoldenLayout(this.goldenLayoutHostComponent.element);
-    this.goldenLayoutHostComponent.setGoldenLayout(this._goldenLayout);
-    this.controlsComponent.setGoldenLayout(this._goldenLayout);
+    this._controlsElement = this._controlsComponent.element;
+    this._controlsComponent.setGoldenLayoutHostComponent(this._goldenLayoutHostComponent);
 
     globalThis.addEventListener('resize', this._windowResizeListener);
   }
@@ -52,7 +46,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     const bodyWidth = this.pixelsToNumber(bodyComputedStyle.width);
     const controlsWidth = this.pixelsToNumber(controlsComputedStyle.width);
     const height = this.pixelsToNumber(bodyComputedStyle.height);
-    this._goldenLayout.setSize(bodyWidth - controlsWidth, height)
+    this._goldenLayoutHostComponent.setSize(bodyWidth - controlsWidth, height)
   }
 
   private pixelsToNumber(value: string): number {

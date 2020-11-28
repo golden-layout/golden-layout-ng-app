@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef } from '@angular/core';
 import {
   GoldenLayout,
   LayoutConfig,
@@ -6,17 +6,46 @@ import {
   UserSerialisableComponentConfig
 } from "golden-layout";
 import { GoldenLayoutComponentService } from './golden-layout-component.service';
-import { Layout, prefinedLayouts } from './predefined-layouts';
+import { GoldenLayoutHostComponent } from './golden-layout-host.component';
+import { predefinedLayoutNames, predefinedLayouts } from './predefined-layouts';
+import { TextComponent } from './text.component';
 
 @Component({
   selector: 'app-controls',
   template: `
     <section id="addComponentSection">
-      <select #registeredComponentTypesSelect id="registeredComponentTypesSelect" class="control"></select>
+      <select #registeredComponentTypeSelect
+        id="registeredComponentTypeSelect"
+        class="control"
+        [value]="initialRegisteredComponentTypeName"
+        (change)="handleRegisteredComponentTypeSelectChange(registeredComponentTypeSelect.value)"
+      >
+        <option *ngFor="let name of registeredComponentTypeNames">{{name}}</option>
+      </select>
       <button #addComponentButton id="addComponentButton" class="control" (click)="handleAddComponentButtonClick()">Add Component</button>
     </section>
+    <section id="addTextComponentSection">
+      <input #componentTextInput id="componentTextInput"
+        class="control"
+        size="8"
+        [value]="initialComponentTextValue"
+        (input)="handleComponentTextInputInput(componentTextInput.value)"
+      />
+      <button #addTextComponentButton
+        id="addTextComponentButton"
+        class="control"
+        (click)="handleAddTextComponentButtonClick()"
+      >Add Text Component</button>
+    </section>
     <section id="predefinedLayoutsSection">
-      <select #layoutSelect id="layoutSelect" class="control"></select>
+      <select #layoutSelect
+        id="layoutSelect"
+        class="control"
+        [value]="initialLayoutName"
+        (change)="handleLayoutSelectChange(layoutSelect.value)"
+      >
+        <option *ngFor="let name of layoutNames">{{name}}</option>
+      </select>
       <button #loadLayoutButton id="loadLayoutButton" class="control" (click)="handleLoadLayoutButtonClick()">Load Layout</button>
     </section>
     <section id="saveAndReloadLayoutSection">
@@ -24,6 +53,7 @@ import { Layout, prefinedLayouts } from './predefined-layouts';
       <button #reloadSavedLayoutButton 
         id="reloadSavedLayoutButton"
         class="control"
+        [disabled]="saveLayoutButtonDisabled === true ? true : null"
         (click)="handleReloadSavedLayoutClick()"
       >Reload saved Layout</button>
     </section>
@@ -43,6 +73,11 @@ import { Layout, prefinedLayouts } from './predefined-layouts';
       flex-direction: row;
     }
 
+    #addTextComponentSection {
+      display: flex;
+      flex-direction: row;
+    }
+
     #predefinedLayoutsSection {
       display: flex;
       flex-direction: row;
@@ -56,92 +91,95 @@ import { Layout, prefinedLayouts } from './predefined-layouts';
   ]
 })
 export class ControlsComponent implements AfterViewInit {
+  private _goldenLayoutHostComponent: GoldenLayoutHostComponent
   private _goldenLayout: GoldenLayout;
   private _savedLayout: LayoutConfig | undefined;
 
-  private _registeredComponentTypesSelect: HTMLSelectElement;
-  private _layoutSelect: HTMLSelectElement;
-  private _reloadSavedLayoutButton: HTMLButtonElement;
+  private _selectedRegisteredComponentTypeName: string;
+  private _componentTextValue: string;
+  private _selectedLayoutName: string;
+
+  public registeredComponentTypeNames: readonly string[];
+  public initialRegisteredComponentTypeName: string;
+  public initialComponentTextValue = 'Water';
+  public layoutNames: readonly string[];
+  public initialLayoutName: string;
+  public saveLayoutButtonDisabled = true;
 
   get element() { return this._elRef.nativeElement; }
-
-  @ViewChild('registeredComponentTypesSelect') private _registeredComponentTypesSelectElementRef: ElementRef<HTMLSelectElement>;
-  @ViewChild('layoutSelect') private _layoutSelectElementRef: ElementRef<HTMLSelectElement>;
-  @ViewChild('reloadSavedLayoutButton') private _reloadSavedLayoutButtonElementRef: ElementRef<HTMLButtonElement>;
 
   constructor(private _elRef: ElementRef<HTMLElement>,
     private _goldenLayoutComponentService: GoldenLayoutComponentService
   ) { }
 
   ngAfterViewInit(): void {
-    this._registeredComponentTypesSelect = this._registeredComponentTypesSelectElementRef.nativeElement;
-    this._layoutSelect = this._layoutSelectElementRef.nativeElement;
-    this._reloadSavedLayoutButton = this._reloadSavedLayoutButtonElementRef.nativeElement;
-  
-    this.loadRegisteredComponentTypesSelect();
-    this.loadLayoutSelect();
-    this._reloadSavedLayoutButton.disabled = true;
+    this.registeredComponentTypeNames = this._goldenLayoutComponentService.getRegisteredComponentTypeNames();
+    this._selectedRegisteredComponentTypeName = this.registeredComponentTypeNames[0]
+    this.initialRegisteredComponentTypeName = this._selectedRegisteredComponentTypeName;
+    this._componentTextValue = this.initialComponentTextValue;
+    this.layoutNames = predefinedLayoutNames;
+    this._selectedLayoutName = this.layoutNames[0]
+    this.initialLayoutName = this._selectedLayoutName;
   }
 
-  setGoldenLayout(value: GoldenLayout) {
-    this._goldenLayout = value;
+  setGoldenLayoutHostComponent(value: GoldenLayoutHostComponent) {
+    this._goldenLayoutHostComponent = value;
+    this._goldenLayout = this._goldenLayoutHostComponent.goldenLayout;
+  }
+
+  handleRegisteredComponentTypeSelectChange(value: string) {
+    this._selectedRegisteredComponentTypeName = value;
+  }
+
+  handleComponentTextInputInput(value: string) {
+    this._componentTextValue = value;
   }
 
   handleAddComponentButtonClick() {
-      const componentTypeName = this._registeredComponentTypesSelect.value;
-      const userItemConfig: UserSerialisableComponentConfig = {
-          componentName: componentTypeName,
-          type: 'component',
-      }
-      this._goldenLayout.addItem(userItemConfig, 0);
-      this._goldenLayout.updateSizeFromContainer();
+    const userItemConfig: UserSerialisableComponentConfig = {
+        componentName: this._selectedRegisteredComponentTypeName,
+        type: 'component',
+    }
+    this._goldenLayout.addItem(userItemConfig, 0);
+  }
+
+  handleAddTextComponentButtonClick() {
+    // this demonstrates how to access created Angular component
+    const goldenLayoutComponent = this._goldenLayout.newSerialisableComponent(TextComponent.name); // do not set state here
+    const componentRef = this._goldenLayoutHostComponent.getComponentRef(goldenLayoutComponent.container);
+    if (componentRef === undefined) {
+      throw new Error('Unexpected error getting ComponentRef');
+    } else {
+      const textComponent = componentRef.instance as TextComponent;
+      textComponent.setInitialValue(this._componentTextValue);
+    }
+  }
+
+  handleLayoutSelectChange(value: string) {
+    this._selectedLayoutName = value;
   }
 
   handleLoadLayoutButtonClick() {
-      const layoutName = this._layoutSelect.value;
-      const layouts = this.getAvailableLayouts();
-      const selectedLayout = layouts.find((layout) => layout.name === layoutName);
-      if (selectedLayout === undefined) {
-          throw new Error('handleLayoutSelectChange');
-      } else {
-          this._goldenLayout.loadLayout(selectedLayout.config);
-      }
+    const selectedLayout = predefinedLayouts.find((layout) => layout.name === this._selectedLayoutName);
+    if (selectedLayout === undefined) {
+        throw new Error('handleLoadLayoutButtonClick Error');
+    } else {
+        this._goldenLayout.loadLayout(selectedLayout.config);
+    }
   }
 
   handleSaveLayoutButtonClick() {
-      this._savedLayout = this._goldenLayout.saveLayout();
-      this._reloadSavedLayoutButton.disabled = false;
+    this._savedLayout = this._goldenLayout.saveLayout();
+    this.saveLayoutButtonDisabled = false;
   }
 
   handleReloadSavedLayoutClick() {
-      if (this._savedLayout === undefined) {
-          throw new Error('No saved layout');
-      } else {
-          const userLayoutConfig = UserLayoutConfig.fromLayoutConfig(this._savedLayout);
-          this._goldenLayout.loadLayout(userLayoutConfig);
-      }
-  }
-
-  private loadRegisteredComponentTypesSelect() {
-      this._registeredComponentTypesSelect.options.length = 0;
-      const names = this._goldenLayoutComponentService.getRegisteredComponentTypeNames();
-      for (const name of names) {
-          const option = new Option(name);
-          this._registeredComponentTypesSelect.options.add(option);
-      }
-  }
-
-  private getAvailableLayouts(): Layout[] {
-      return prefinedLayouts;
-  }
-
-  private loadLayoutSelect() {
-      this._layoutSelect.options.length = 0;
-      const layouts = this.getAvailableLayouts();
-      for (const layout of layouts) {
-          const option = new Option(layout.name);
-          this._layoutSelect.options.add(option);
-      }
+    if (this._savedLayout === undefined) {
+        throw new Error('No saved layout');
+    } else {
+        const userLayoutConfig = UserLayoutConfig.fromLayoutConfig(this._savedLayout);
+        this._goldenLayout.loadLayout(userLayoutConfig);
+    }
   }
 }
 
