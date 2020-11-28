@@ -112,14 +112,8 @@ export class ControlsComponent implements AfterViewInit {
     private _goldenLayoutComponentService: GoldenLayoutComponentService
   ) { }
 
-  ngAfterViewInit(): void {
-    this.registeredComponentTypeNames = this._goldenLayoutComponentService.getRegisteredComponentTypeNames();
-    this._selectedRegisteredComponentTypeName = this.registeredComponentTypeNames[0]
-    this.initialRegisteredComponentTypeName = this._selectedRegisteredComponentTypeName;
-    this._componentTextValue = this.initialComponentTextValue;
-    this.layoutNames = predefinedLayoutNames;
-    this._selectedLayoutName = this.layoutNames[0]
-    this.initialLayoutName = this._selectedLayoutName;
+  ngAfterViewInit() {
+    setInterval(() => this.initialiseControls(), 0);
   }
 
   setGoldenLayoutHostComponent(value: GoldenLayoutHostComponent) {
@@ -180,6 +174,16 @@ export class ControlsComponent implements AfterViewInit {
         const userLayoutConfig = UserLayoutConfig.fromLayoutConfig(this._savedLayout);
         this._goldenLayout.loadLayout(userLayoutConfig);
     }
+  }
+
+  private initialiseControls() {
+    this.registeredComponentTypeNames = this._goldenLayoutComponentService.getRegisteredComponentTypeNames();
+    this._selectedRegisteredComponentTypeName = this.registeredComponentTypeNames[0]
+    this.initialRegisteredComponentTypeName = this._selectedRegisteredComponentTypeName;
+    this._componentTextValue = this.initialComponentTextValue;
+    this.layoutNames = predefinedLayoutNames;
+    this._selectedLayoutName = this.layoutNames[0]
+    this.initialLayoutName = this._selectedLayoutName;
   }
 }
 

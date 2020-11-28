@@ -33,6 +33,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     this._controlsComponent.setGoldenLayoutHostComponent(this._goldenLayoutHostComponent);
 
     globalThis.addEventListener('resize', this._windowResizeListener);
+    setTimeout(() => this.resizeGoldenLayout(), 0);
   }
 
   ngOnDestroy() {
@@ -41,6 +42,10 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
   private handleWindowResizeEvent() {
     // handling of resize event is required if GoldenLayout does not use body element
+    this.resizeGoldenLayout();
+  }
+
+  private resizeGoldenLayout() {
     const bodyComputedStyle = getComputedStyle(document.body);
     const controlsComputedStyle = getComputedStyle(this._controlsElement);
     const bodyWidth = this.pixelsToNumber(bodyComputedStyle.width);
