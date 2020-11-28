@@ -113,7 +113,7 @@ export class ControlsComponent implements AfterViewInit {
   ) { }
 
   ngAfterViewInit() {
-    setInterval(() => this.initialiseControls(), 0);
+    setTimeout(() => this.initialiseControls(), 0);
   }
 
   setGoldenLayoutHostComponent(value: GoldenLayoutHostComponent) {
@@ -186,4 +186,3 @@ export class ControlsComponent implements AfterViewInit {
     this.initialLayoutName = this._selectedLayoutName;
   }
 }
-
