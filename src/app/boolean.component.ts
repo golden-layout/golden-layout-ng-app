@@ -18,7 +18,7 @@ export class BooleanComponent extends BaseComponentDirective {
 
     this.container.stateRequestEvent = () => this.handleContainerStateRequestEvent();
 
-    const state = this.container.getInitialState()
+    const state = this.container.initialState;
     this.value = state as boolean;
     this.initialValue = this.value;
   }

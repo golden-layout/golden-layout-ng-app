@@ -18,7 +18,7 @@ export class TextComponent extends BaseComponentDirective {
 
     this.container.stateRequestEvent = () => this.handleContainerStateRequestEvent();
 
-    const state = this.container.getInitialState();
+    const state = this.container.initialState;
     let textValue: string;
     if (state === undefined) {
       textValue = TextComponent.undefinedTextValue;

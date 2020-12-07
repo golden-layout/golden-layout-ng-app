@@ -28,7 +28,7 @@ export class ColorComponent extends BaseComponentDirective {
 
     this.container.stateRequestEvent = () => this.handleContainerStateRequestEvent();
 
-    const state = this.container.getInitialState();
+    const state = this.container.initialState;
     let color: string;
     if (state === undefined) {
         color = ColorComponent.undefinedColor;

@@ -2,6 +2,7 @@ import { ApplicationRef, Component, ComponentRef, ElementRef, EmbeddedViewRef, O
 import {
   ComponentContainer,
   ComponentItem,
+  ComponentItemConfig,
   GoldenLayout
 } from "golden-layout";
 import { BaseComponentDirective } from './base-component.directive';
@@ -33,7 +34,7 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     private goldenLayoutComponentService: GoldenLayoutComponentService,
   ) {
     this._goldenLayout = new GoldenLayout(this._elRef.nativeElement);
-    this._goldenLayout.getComponentEvent = (container) => this.handleGetComponentEvent(container);
+    this._goldenLayout.getComponentEvent = (container, itemConfig) => this.handleGetComponentEvent(container, itemConfig);
     this._goldenLayout.releaseComponentEvent = (container, component) => this.handleReleaseComponentEvent(container, component);
 
     this.goldenLayoutComponentService.registerComponentType(ColorComponent.name, ColorComponent);
@@ -53,8 +54,8 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     return this._containerMap.get(container);
   }
 
-  private handleGetComponentEvent(container: ComponentContainer) {
-    const componentTypeName = container.componentItemConfig.componentName;
+  private handleGetComponentEvent(container: ComponentContainer, itemConfig: ComponentItemConfig) {
+    const componentTypeName = itemConfig.componentName;
     const componentRef = this.goldenLayoutComponentService.createComponent(componentTypeName, container);
 
     this.appRef.attachView(componentRef.hostView);
