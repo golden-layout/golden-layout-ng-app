@@ -1,16 +1,16 @@
-import { ItemConfig, UserLayoutConfig, UserSerialisableComponentConfig } from "golden-layout";
+import { ItemConfig, ItemType, LayoutConfig, SerialisableComponentConfig } from "golden-layout";
 import { BooleanComponent } from './boolean.component';
 import { ColorComponent } from './color.component';
 import { TextComponent } from './text.component';
 
 export interface Layout {
     name: string;
-    config: UserLayoutConfig;
+    config: LayoutConfig;
 }
 
-const miniRowConfig: UserLayoutConfig = {
+const miniRowConfig: LayoutConfig = {
     root: {
-        type: ItemConfig.Type.row,
+        type: ItemType.row,
         content: [
             {
                 type: "component",
@@ -22,14 +22,14 @@ const miniRowConfig: UserLayoutConfig = {
                 componentName: ColorComponent.name,
                 width: 30,
                 componentState: 'gold',
-            } as UserSerialisableComponentConfig,
+            } as SerialisableComponentConfig,
             {
                 title: "Layout",
                 header: { show: "top", popout: false },
                 type: "component",
                 componentName: ColorComponent.name,
                 componentState: undefined,
-            } as UserSerialisableComponentConfig,
+            } as SerialisableComponentConfig,
         ],
     },
 };
@@ -39,9 +39,9 @@ const miniRowLayout: Layout = {
     config: miniRowConfig,
 };
 
-const miniStackConfig: UserLayoutConfig = {
+const miniStackConfig: LayoutConfig = {
     root: {
-        type: ItemConfig.Type.stack,
+        type: ItemType.stack,
         content: [
             {
                 type: "component",
@@ -53,14 +53,14 @@ const miniStackConfig: UserLayoutConfig = {
                 componentName: ColorComponent.name,
                 width: 30,
                 componentState: 'white',
-            } as UserSerialisableComponentConfig,
+            } as SerialisableComponentConfig,
             {
                 title: "Layout",
                 header: { show: "top", popout: false },
                 type: "component",
                 componentName: ColorComponent.name,
                 componentState: 'green',
-            } as UserSerialisableComponentConfig,
+            } as SerialisableComponentConfig,
         ],
     },
 };
@@ -70,7 +70,7 @@ const miniStackLayout: Layout = {
     config: miniStackConfig,
 };
 
-const standardConfig: UserLayoutConfig = {
+const standardConfig: LayoutConfig = {
     root: {
         type: "row",
         content: [
@@ -97,7 +97,7 @@ const standardConfig: UserLayoutConfig = {
                                 componentState: {
                                     bg: "golden_layout_spiral.png",
                                 },
-                            } as UserSerialisableComponentConfig,
+                            } as SerialisableComponentConfig,
                             {
                                 title: "Layout",
                                 header: {
@@ -109,7 +109,7 @@ const standardConfig: UserLayoutConfig = {
                                 componentState: {
                                     bg: "golden_layout_text.png",
                                 },
-                            } as UserSerialisableComponentConfig,
+                            } as SerialisableComponentConfig,
                         ],
                     },
                     {
@@ -122,7 +122,7 @@ const standardConfig: UserLayoutConfig = {
                                 componentState: {
                                     companyName: "Stock X",
                                 },
-                            } as UserSerialisableComponentConfig,
+                            } as SerialisableComponentConfig,
                             {
                                 type: "component",
                                 title: "LexCorp plc.",
@@ -130,7 +130,7 @@ const standardConfig: UserLayoutConfig = {
                                 componentState: {
                                     companyName: "Stock Y",
                                 },
-                            } as UserSerialisableComponentConfig,
+                            } as SerialisableComponentConfig,
                             {
                                 type: "component",
                                 title: "Springshield plc.",
@@ -138,7 +138,7 @@ const standardConfig: UserLayoutConfig = {
                                 componentState: {
                                     companyName: "Stock Z",
                                 },
-                            } as UserSerialisableComponentConfig,
+                            } as SerialisableComponentConfig,
                         ],
                     },
                 ],
@@ -159,7 +159,7 @@ const standardConfig: UserLayoutConfig = {
                                 componentState: {
                                     companyName: "Stock X",
                                 },
-                            } as UserSerialisableComponentConfig,
+                            } as SerialisableComponentConfig,
                             {
                                 type: "component",
                                 title: "comp 2",
@@ -167,7 +167,7 @@ const standardConfig: UserLayoutConfig = {
                                 componentState: {
                                     companyName: "Stock Y",
                                 },
-                            } as UserSerialisableComponentConfig,
+                            } as SerialisableComponentConfig,
                             {
                                 type: "component",
                                 title: "comp 3",
@@ -175,7 +175,7 @@ const standardConfig: UserLayoutConfig = {
                                 componentState: {
                                     companyName: "Stock Z",
                                 },
-                            } as UserSerialisableComponentConfig,
+                            } as SerialisableComponentConfig,
                         ],
                     },
                 ],
@@ -189,7 +189,7 @@ const standardLayout: Layout = {
     config: standardConfig,
 };
 
-const responsiveConfig: UserLayoutConfig = {
+const responsiveConfig: LayoutConfig = {
     settings: {
         responsiveMode: "always",
     },
@@ -217,7 +217,7 @@ const responsiveConfig: UserLayoutConfig = {
                                 componentName: ColorComponent.name,
                                 width: 30,
                                 componentState: 'Gold',
-                            } as UserSerialisableComponentConfig,
+                            } as SerialisableComponentConfig,
                         ],
                     },
                     {
@@ -228,7 +228,7 @@ const responsiveConfig: UserLayoutConfig = {
                                 title: "Acme, inc.",
                                 componentName: ColorComponent.name,
                                 componentState: 'red',
-                            } as UserSerialisableComponentConfig,
+                            } as SerialisableComponentConfig,
                             {
                                 type: "component",
                                 title: "LexCorp plc.",
@@ -236,7 +236,7 @@ const responsiveConfig: UserLayoutConfig = {
                                 componentState: {
                                     companyName: "Stock Y",
                                 },
-                            } as UserSerialisableComponentConfig,
+                            } as SerialisableComponentConfig,
                             {
                                 type: "component",
                                 title: "Springshield plc.",
@@ -244,7 +244,7 @@ const responsiveConfig: UserLayoutConfig = {
                                 componentState: {
                                     companyName: "Stock Z",
                                 },
-                            } as UserSerialisableComponentConfig,
+                            } as SerialisableComponentConfig,
                         ],
                     },
                 ],
@@ -255,14 +255,14 @@ const responsiveConfig: UserLayoutConfig = {
                 type: "component",
                 componentName: ColorComponent.name,
                 componentState: 'green',
-            } as UserSerialisableComponentConfig,
+            } as SerialisableComponentConfig,
             {
                 width: 20,
                 type: "component",
                 title: "Market",
                 componentName: ColorComponent.name,
                 componentState: 'white',
-            } as UserSerialisableComponentConfig,
+            } as SerialisableComponentConfig,
             {
                 width: 20,
                 type: "column",
@@ -290,7 +290,7 @@ const responsiveLayout: Layout = {
     config: responsiveConfig,
 };
 
-const tabDropdownConfig: UserLayoutConfig = {
+const tabDropdownConfig: LayoutConfig = {
     settings: {
         tabOverlapAllowance: 25,
         reorderOnTabMenuClick: false,
@@ -319,7 +319,7 @@ const tabDropdownConfig: UserLayoutConfig = {
                                 componentState: {
                                     text: 'hello',
                                 },
-                            } as UserSerialisableComponentConfig,
+                            } as SerialisableComponentConfig,
                         ],
                     },
                     {
@@ -332,7 +332,7 @@ const tabDropdownConfig: UserLayoutConfig = {
                                 componentState: {
                                     companyName: "Stock X",
                                 },
-                            } as UserSerialisableComponentConfig,
+                            } as SerialisableComponentConfig,
                             {
                                 type: "component",
                                 title: "LexCorp plc.",
@@ -340,7 +340,7 @@ const tabDropdownConfig: UserLayoutConfig = {
                                 componentState: {
                                     companyName: "Stock Y",
                                 },
-                            } as UserSerialisableComponentConfig,
+                            } as SerialisableComponentConfig,
                             {
                                 type: "component",
                                 title: "Springshield plc.",
@@ -348,7 +348,7 @@ const tabDropdownConfig: UserLayoutConfig = {
                                 componentState: {
                                     companyName: "Stock Z",
                                 },
-                            } as UserSerialisableComponentConfig,
+                            } as SerialisableComponentConfig,
                         ],
                     },
                 ],
@@ -399,7 +399,7 @@ const tabDropdownConfig: UserLayoutConfig = {
                         componentState: {
                             bg: "golden_layout_spiral.png",
                         },
-                    } as UserSerialisableComponentConfig,
+                    } as SerialisableComponentConfig,
                     {
                         type: "component",
                         title: "Profile",
@@ -413,7 +413,7 @@ const tabDropdownConfig: UserLayoutConfig = {
                 type: "component",
                 componentName: BooleanComponent.name,
                 componentState: true,
-            } as UserSerialisableComponentConfig,
+            } as SerialisableComponentConfig,
         ],
     },
 };

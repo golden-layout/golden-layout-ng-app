@@ -2,8 +2,8 @@ import { AfterViewInit, Component, ElementRef } from '@angular/core';
 import {
   GoldenLayout,
   LayoutConfig,
-  UserLayoutConfig,
-  UserSerialisableComponentConfig
+  ResolvedLayoutConfig,
+  SerialisableComponentConfig,
 } from "golden-layout";
 import { GoldenLayoutComponentService } from './golden-layout-component.service';
 import { GoldenLayoutHostComponent } from './golden-layout-host.component';
@@ -93,7 +93,7 @@ import { TextComponent } from './text.component';
 export class ControlsComponent implements AfterViewInit {
   private _goldenLayoutHostComponent: GoldenLayoutHostComponent
   private _goldenLayout: GoldenLayout;
-  private _savedLayout: LayoutConfig | undefined;
+  private _savedLayout: ResolvedLayoutConfig | undefined;
 
   private _selectedRegisteredComponentTypeName: string;
   private _componentTextValue: string;
@@ -130,11 +130,11 @@ export class ControlsComponent implements AfterViewInit {
   }
 
   handleAddComponentButtonClick() {
-    const userItemConfig: UserSerialisableComponentConfig = {
+    const itemConfig: SerialisableComponentConfig = {
         componentName: this._selectedRegisteredComponentTypeName,
         type: 'component',
     }
-    this._goldenLayout.addItem(userItemConfig, 0);
+    this._goldenLayout.addItem(itemConfig, 0);
   }
 
   handleAddTextComponentButtonClick() {
@@ -171,8 +171,8 @@ export class ControlsComponent implements AfterViewInit {
     if (this._savedLayout === undefined) {
         throw new Error('No saved layout');
     } else {
-        const userLayoutConfig = UserLayoutConfig.fromLayoutConfig(this._savedLayout);
-        this._goldenLayout.loadLayout(userLayoutConfig);
+        const layoutConfig = LayoutConfig.fromResolved(this._savedLayout);
+        this._goldenLayout.loadLayout(layoutConfig);
     }
   }
 
