@@ -3,7 +3,8 @@ import {
   ComponentContainer,
   ComponentItem,
   ComponentItemConfig,
-  GoldenLayout
+  GoldenLayout,
+  ResolvedComponentItemConfig
 } from "golden-layout";
 import { BaseComponentDirective } from './base-component.directive';
 import { BooleanComponent } from './boolean.component';
@@ -54,9 +55,9 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     return this._containerMap.get(container);
   }
 
-  private handleGetComponentEvent(container: ComponentContainer, itemConfig: ComponentItemConfig) {
-    const componentTypeName = itemConfig.componentName;
-    const componentRef = this.goldenLayoutComponentService.createComponent(componentTypeName, container);
+  private handleGetComponentEvent(container: ComponentContainer, itemConfig: ResolvedComponentItemConfig) {
+    const componentType = itemConfig.componentType;
+    const componentRef = this.goldenLayoutComponentService.createComponent(componentType, container);
 
     this.appRef.attachView(componentRef.hostView);
 

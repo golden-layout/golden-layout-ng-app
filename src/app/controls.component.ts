@@ -3,7 +3,7 @@ import {
   GoldenLayout,
   LayoutConfig,
   ResolvedLayoutConfig,
-  SerialisableComponentConfig,
+  SerialisableComponentConfig
 } from "golden-layout";
 import { GoldenLayoutComponentService } from './golden-layout-component.service';
 import { GoldenLayoutHostComponent } from './golden-layout-host.component';
@@ -131,7 +131,7 @@ export class ControlsComponent implements AfterViewInit {
 
   handleAddComponentButtonClick() {
     const itemConfig: SerialisableComponentConfig = {
-        componentName: this._selectedRegisteredComponentTypeName,
+        componentType: this._selectedRegisteredComponentTypeName,
         type: 'component',
     }
     this._goldenLayout.addItem(itemConfig, 0);

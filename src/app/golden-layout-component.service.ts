@@ -1,5 +1,5 @@
 import { ComponentFactoryResolver, Injectable, Injector, StaticProvider, Type } from '@angular/core';
-import { ComponentContainer } from "golden-layout";
+import { ComponentContainer, JsonValue } from "golden-layout";
 import { BaseComponentDirective } from './base-component.directive';
 
 @Injectable({
@@ -24,8 +24,8 @@ export class GoldenLayoutComponentService {
     return result;
   }
 
-  createComponent(componentTypeName: string, container: ComponentContainer) {
-    const componentType = this._componentTypeMap.get(componentTypeName);
+  createComponent(componentTypeJsonValue: JsonValue, container: ComponentContainer) {
+    const componentType = this._componentTypeMap.get(componentTypeJsonValue as string);
     if (componentType === undefined) {
       throw new Error('Unknown component type')
     } else {
