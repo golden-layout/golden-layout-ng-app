@@ -1,6 +1,6 @@
 # GoldenLayoutNgApp
 
-This application demonstrates how to use GoldenLayout inside an Angular (version 10) application.
+This application demonstrates how to use GoldenLayout inside an Angular application.
 
 It uses the a preliminary (at the time of this writing) port of GoldenLayout to TypeScript which can be downloaded from:
   [https://github.com/pbklink/golden-layout](https://github.com/pbklink/golden-layout)
