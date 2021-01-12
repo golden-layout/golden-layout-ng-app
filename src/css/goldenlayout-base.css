@@ -29,10 +29,6 @@
   position: relative;
   z-index: 2;
 }
-.lm_splitter:hover,
-.lm_splitter.lm_dragging {
-  background: orange;
-}
 .lm_splitter.lm_vertical .lm_drag_handle {
   width: 100%;
   position: absolute;
@@ -56,30 +52,24 @@
       -ms-user-select: none;
           user-select: none;
 }
-.lm_header.lm_selectable {
-  cursor: pointer;
-}
 .lm_header [class^=lm_] {
   box-sizing: content-box !important;
 }
 .lm_header .lm_controls {
   position: absolute;
   right: 3px;
+  display: flex;
 }
-.lm_header .lm_controls > li {
+.lm_header .lm_controls > * {
   cursor: pointer;
   float: left;
   width: 18px;
   height: 18px;
   text-align: center;
 }
-.lm_header ul {
-  margin: 0;
-  padding: 0;
-  list-style-type: none;
-}
 .lm_header .lm_tabs {
   position: absolute;
+  display: flex;
 }
 .lm_header .lm_tab {
   cursor: pointer;

@@ -2,7 +2,6 @@ import { ApplicationRef, Component, ComponentRef, ElementRef, EmbeddedViewRef, O
 import {
   ComponentContainer,
   ComponentItem,
-  ComponentItemConfig,
   GoldenLayout,
   ResolvedComponentItemConfig
 } from "golden-layout";
@@ -62,7 +61,7 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     this.appRef.attachView(componentRef.hostView);
 
     const domElem = (componentRef.hostView as EmbeddedViewRef<unknown>).rootNodes[0] as HTMLElement;
-    container.contentElement.appendChild(domElem);
+    container.element.appendChild(domElem);
 
     this._containerMap.set(container, componentRef);
   }

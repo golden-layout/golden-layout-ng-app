@@ -64,6 +64,9 @@
 .lm_header .lm_tab.lm_active .lm_close_tab {
   opacity: 1;
 }
+.lm_header .lm_tab.lm_active.lm_focused {
+  background-color: #354be3;
+}
 .lm_dragProxy.lm_right .lm_header .lm_tab.lm_active,
 .lm_stack.lm_right .lm_header .lm_tab.lm_active {
   box-shadow: 2px -2px 2px #000000;
@@ -87,14 +90,14 @@
 .lm_header .lm_controls .lm_tabdropdown:before {
   color: #ffffff;
 }
-.lm_controls > li {
+.lm_controls > * {
   position: relative;
   background-position: center center;
   background-repeat: no-repeat;
   opacity: 0.4;
   transition: opacity 300ms ease;
 }
-.lm_controls > li:hover {
+.lm_controls > *:hover {
   opacity: 1;
 }
 .lm_controls .lm_popout {
