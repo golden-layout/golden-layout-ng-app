@@ -64,6 +64,8 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     container.element.appendChild(domElem);
 
     this._containerMap.set(container, componentRef);
+
+    return componentRef.instance;
   }
 
   private handleReleaseComponentEvent(container: ComponentContainer, component: ComponentItem.Component) {
