@@ -3,7 +3,7 @@ import {
   GoldenLayout,
   LayoutConfig,
   ResolvedLayoutConfig,
-  SerialisableComponentConfig
+  ComponentItemConfig
 } from "golden-layout";
 import { GoldenLayoutComponentService } from './golden-layout-component.service';
 import { GoldenLayoutHostComponent } from './golden-layout-host.component';
@@ -130,7 +130,7 @@ export class ControlsComponent implements AfterViewInit {
   }
 
   handleAddComponentButtonClick() {
-    const itemConfig: SerialisableComponentConfig = {
+    const itemConfig: ComponentItemConfig = {
         componentType: this._selectedRegisteredComponentTypeName,
         type: 'component',
     }
@@ -139,7 +139,7 @@ export class ControlsComponent implements AfterViewInit {
 
   handleAddTextComponentButtonClick() {
     // this demonstrates how to access created Angular component
-    const goldenLayoutComponent = this._goldenLayout.newSerialisableComponent(TextComponent.name); // do not set state here
+    const goldenLayoutComponent = this._goldenLayout.newComponent(TextComponent.name); // do not set state here
     const componentRef = this._goldenLayoutHostComponent.getComponentRef(goldenLayoutComponent.container);
     if (componentRef === undefined) {
       throw new Error('Unexpected error getting ComponentRef');
