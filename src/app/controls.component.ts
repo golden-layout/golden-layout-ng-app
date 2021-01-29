@@ -2,8 +2,7 @@ import { AfterViewInit, Component, ElementRef } from '@angular/core';
 import {
   GoldenLayout,
   LayoutConfig,
-  ResolvedLayoutConfig,
-  ComponentItemConfig
+  ResolvedLayoutConfig
 } from "golden-layout";
 import { GoldenLayoutComponentService } from './golden-layout-component.service';
 import { GoldenLayoutHostComponent } from './golden-layout-host.component';
@@ -130,11 +129,8 @@ export class ControlsComponent implements AfterViewInit {
   }
 
   handleAddComponentButtonClick() {
-    const itemConfig: ComponentItemConfig = {
-        componentType: this._selectedRegisteredComponentTypeName,
-        type: 'component',
-    }
-    this._goldenLayout.addItem(itemConfig, 0);
+    const componentType = this._selectedRegisteredComponentTypeName;
+    this._goldenLayout.addComponent(componentType);
   }
 
   handleAddTextComponentButtonClick() {
