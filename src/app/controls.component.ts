@@ -1,13 +1,14 @@
-import { AfterViewInit, Component, ElementRef } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import {
+  DragSource,
   GoldenLayout,
   LayoutConfig,
-  ResolvedLayoutConfig
-} from "golden-layout";
+  ResolvedLayoutConfig } from "golden-layout";
 import { GoldenLayoutComponentService } from './golden-layout-component.service';
 import { GoldenLayoutHostComponent } from './golden-layout-host.component';
 import { predefinedLayoutNames, predefinedLayouts } from './predefined-layouts';
 import { TextComponent } from './text.component';
+import { ColorComponent } from "./color.component";
 
 @Component({
   selector: 'app-controls',
@@ -56,6 +57,9 @@ import { TextComponent } from './text.component';
         (click)="handleReloadSavedLayoutClick()"
       >Reload saved Layout</button>
     </section>
+    <section id="dragSection">
+      <button class="draggable control" #dragMe>Drag me !</button>
+    </section>
   `,
   styles: [`
     :host {
@@ -64,7 +68,11 @@ import { TextComponent } from './text.component';
     }
 
     .control {
-      margin: 2px;    
+      margin: 2px;
+    }
+
+    .draggable {
+      cursor: move;
     }
 
     #addComponentSection {
@@ -85,11 +93,16 @@ import { TextComponent } from './text.component';
     #saveAndReloadLayoutSection {
       display: flex;
       flex-direction: row;
-    }  
+    } 
+
+    #dragSection {
+      display: flex;
+      flex-direction: column;
+    }
   `
   ]
 })
-export class ControlsComponent implements AfterViewInit {
+export class ControlsComponent implements AfterViewInit, OnDestroy {
   private _goldenLayoutHostComponent: GoldenLayoutHostComponent
   private _goldenLayout: GoldenLayout;
   private _savedLayout: ResolvedLayoutConfig | undefined;
@@ -97,6 +110,9 @@ export class ControlsComponent implements AfterViewInit {
   private _selectedRegisteredComponentTypeName: string;
   private _componentTextValue: string;
   private _selectedLayoutName: string;
+  private _dragSources: Array<DragSource | undefined> = [];
+
+  @ViewChild('dragMe') private dragMeElementRef?: ElementRef;
 
   public registeredComponentTypeNames: readonly string[];
   public initialRegisteredComponentTypeName: string;
@@ -105,14 +121,25 @@ export class ControlsComponent implements AfterViewInit {
   public initialLayoutName: string;
   public saveLayoutButtonDisabled = true;
 
-  get element() { return this._elRef.nativeElement; }
+  get element() {
+    return this._elRef.nativeElement;
+  }
 
   constructor(private _elRef: ElementRef<HTMLElement>,
-    private _goldenLayoutComponentService: GoldenLayoutComponentService
-  ) { }
+              private _goldenLayoutComponentService: GoldenLayoutComponentService
+  ) {
+  }
 
   ngAfterViewInit() {
     setTimeout(() => this.initialiseControls(), 0);
+  }
+
+  ngOnDestroy() {
+    for (const dragSource of this._dragSources) {
+      if (dragSource) {
+        this._goldenLayout.removeDragSource(dragSource);
+      }
+    }
   }
 
   setGoldenLayoutHostComponent(value: GoldenLayoutHostComponent) {
@@ -152,9 +179,9 @@ export class ControlsComponent implements AfterViewInit {
   handleLoadLayoutButtonClick() {
     const selectedLayout = predefinedLayouts.find((layout) => layout.name === this._selectedLayoutName);
     if (selectedLayout === undefined) {
-        throw new Error('handleLoadLayoutButtonClick Error');
+      throw new Error('handleLoadLayoutButtonClick Error');
     } else {
-        this._goldenLayout.loadLayout(selectedLayout.config);
+      this._goldenLayout.loadLayout(selectedLayout.config);
     }
   }
 
@@ -165,10 +192,10 @@ export class ControlsComponent implements AfterViewInit {
 
   handleReloadSavedLayoutClick() {
     if (this._savedLayout === undefined) {
-        throw new Error('No saved layout');
+      throw new Error('No saved layout');
     } else {
-        const layoutConfig = LayoutConfig.fromResolved(this._savedLayout);
-        this._goldenLayout.loadLayout(layoutConfig);
+      const layoutConfig = LayoutConfig.fromResolved(this._savedLayout);
+      this._goldenLayout.loadLayout(layoutConfig);
     }
   }
 
@@ -180,5 +207,27 @@ export class ControlsComponent implements AfterViewInit {
     this.layoutNames = predefinedLayoutNames;
     this._selectedLayoutName = this.layoutNames[0]
     this.initialLayoutName = this._selectedLayoutName;
+
+    this.initialiseDragSources();
+  }
+
+  private initialiseDragSources() {
+    this.loadDragSource('Drag me !', ColorComponent.name, this.dragMeElementRef);
+  }
+
+  private loadDragSource(title: string, componentName: string, element: ElementRef | undefined): void {
+    if (!this._goldenLayout) {
+      return;
+    }
+
+    const config = () => {
+      const item: DragSource.ComponentItemConfig = {
+        state: undefined,
+        title,
+        type: componentName,
+      };
+      return item;
+    };
+    this._dragSources.push(this._goldenLayout.newDragSource(element?.nativeElement, config));
   }
 }
