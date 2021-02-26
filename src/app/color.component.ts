@@ -6,7 +6,7 @@ import { BaseComponentDirective } from './base-component.directive';
   selector: 'app-color-component',
   template: `
     <p id="title" [style.color]="color">{{title}}</p>
-    <input #input id="input" type="text" [value]="initialColor" (input)="updateColor(input.value)">
+    <input #input type="text" [value]="initialColor" (input)="updateColor(input.value)">
   `,
   styles: [`
     #title {
