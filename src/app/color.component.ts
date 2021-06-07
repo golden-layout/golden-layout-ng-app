@@ -7,6 +7,7 @@ import { BaseComponentDirective } from './base-component.directive';
   template: `
     <p id="title" [style.color]="color">{{title}}</p>
     <input #input type="text" [value]="initialColor" (input)="updateColor(input.value)">
+    <p [style.color]="color">id: "{{id}}"</p>
   `,
   styles: [`
     #title {
@@ -20,11 +21,13 @@ export class ColorComponent extends BaseComponentDirective {
   public title: string;
   public color: string;
   public initialColor: string;
+  public id: string;
 
   constructor(@Inject(BaseComponentDirective.GoldenLayoutContainerInjectionToken) private container: ComponentContainer) {
     super();
 
     this.title = this.container.title;
+    this.id = this.container.parent.id;
 
     this.container.stateRequestEvent = () => this.handleContainerStateRequestEvent();
 

@@ -1,4 +1,4 @@
-import { ItemType, LayoutConfig, ComponentItemConfig } from "golden-layout";
+import { ComponentItemConfig, ItemType, LayoutConfig } from "golden-layout";
 import { BooleanComponent } from './boolean.component';
 import { ColorComponent } from './color.component';
 import { TextComponent } from './text.component';
@@ -14,6 +14,7 @@ const miniRowConfig: LayoutConfig = {
         content: [
             {
                 type: "component",
+                id: "miniRowConfig - Golden",
                 title: "Golden",
                 header: {
                     show: "top",
