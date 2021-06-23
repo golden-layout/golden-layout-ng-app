@@ -1,4 +1,4 @@
-import { Component, ComponentRef, ElementRef, OnDestroy } from '@angular/core';
+import { Component, ComponentRef, ElementRef, OnDestroy, ViewChild, ViewContainerRef } from '@angular/core';
 import {
   ComponentContainer, GoldenLayout,
   ResolvedComponentItemConfig
@@ -11,7 +11,7 @@ import { TextComponent } from './text.component';
 
 @Component({
   selector: 'app-golden-layout-host',
-  template: '',
+  template: '<ng-template #componentViewContainer></ng-template>',
   styles: [`
     :host {
       height: 100%;
@@ -27,6 +27,8 @@ export class GoldenLayoutHostComponent implements OnDestroy {
   private _goldenLayoutElement: HTMLElement;
   private _componentRefMap = new Map<ComponentContainer, ComponentRef<BaseComponentDirective>>();
   private _goldenLayoutBoundingClientRect: DOMRect = new DOMRect();
+
+  @ViewChild('componentViewContainer', { read: ViewContainerRef, static: true }) private _componentViewContainerRef: ViewContainerRef;
 
   get goldenLayout() { return this._goldenLayout; }
 
@@ -59,14 +61,12 @@ export class GoldenLayoutHostComponent implements OnDestroy {
   private handleBindComponentEvent(container: ComponentContainer, itemConfig: ResolvedComponentItemConfig) {
     const componentType = itemConfig.componentType;
     const componentRef = this.goldenLayoutComponentService.createComponent(componentType, container);
-    const component = componentRef.instance;
-    const componentRootElement = component.rootHtmlElement;
-
-    this._goldenLayoutElement.appendChild(componentRootElement);
-    this._componentRefMap.set(container, componentRef);
     
     container.virtualRectingRequiredEvent = (container, width, height) => this.handleContainerVirtualRectingRequiredEvent(container, width, height);
     container.virtualVisibilityChangeRequiredEvent = (container, visible) => this.handleContainerVisibilityChangeRequiredEvent(container, visible);
+
+    this._componentViewContainerRef.insert(componentRef.hostView);
+    this._componentRefMap.set(container, componentRef);
   }
 
   private handleUnbindComponentEvent(container: ComponentContainer) {
@@ -74,12 +74,13 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     if (componentRef === undefined) {
       throw new Error('Could not unbind component. Container not found');
     }
-    const component = componentRef.instance;
-    const componentRootElement = component.rootHtmlElement;
-
-    this._goldenLayoutElement.removeChild(componentRootElement);
     this._componentRefMap.delete(container);
-    componentRef.destroy();
+
+    const viewRefIndex = this._componentViewContainerRef.indexOf(componentRef.hostView);
+    if (viewRefIndex < 0) {
+      throw new Error('Could not unbind component. ViewRef not found');
+    }
+    this._componentViewContainerRef.remove(viewRefIndex);
   }
 
   private handleBeforeVirtualRectingEvent(count: number) {
