@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, ElementRef, Inject } from '@angular/core';
 import { ComponentContainer } from 'golden-layout';
 import { BaseComponentDirective } from './base-component.directive';
 
@@ -7,14 +7,23 @@ import { BaseComponentDirective } from './base-component.directive';
   template: `
     <input #input id="input" type="checkbox" [checked]="initialValue" (input)="updateValue(input.checked)">
   `,
-  styles: [`#input { display: block; }`]
+  styles: [`
+    :host {
+      position: absolute;
+      z-index: 31;
+    }
+
+    #input {
+      display: block;
+    }
+  `]
 })
 export class BooleanComponent extends BaseComponentDirective {
   private value: boolean;
   public initialValue: boolean;
 
-  constructor(@Inject(BaseComponentDirective.GoldenLayoutContainerInjectionToken) private container: ComponentContainer) {
-    super();
+  constructor(@Inject(BaseComponentDirective.GoldenLayoutContainerInjectionToken) private container: ComponentContainer, elRef: ElementRef) {
+    super(elRef.nativeElement);
 
     this.container.stateRequestEvent = () => this.handleContainerStateRequestEvent();
 

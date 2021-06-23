@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, ElementRef, Inject } from '@angular/core';
 import { ComponentContainer, JsonValue } from 'golden-layout';
 import { BaseComponentDirective } from './base-component.directive';
 
@@ -7,14 +7,23 @@ import { BaseComponentDirective } from './base-component.directive';
   template: `
     <input #input id="input" type="text" [value]="initialValue" (input)="updateValue(input.value)">
   `,
-  styles: [`#input { display: block; }`]
+  styles: [`
+    :host {
+      position: absolute;
+      z-index: 31;
+    }
+
+    #input {
+      display: block;
+    }
+  `]
 })
 export class TextComponent extends BaseComponentDirective {
   private _value: string;
   public initialValue: string;
 
-  constructor(@Inject(BaseComponentDirective.GoldenLayoutContainerInjectionToken) private container: ComponentContainer) {
-    super();
+  constructor(@Inject(BaseComponentDirective.GoldenLayoutContainerInjectionToken) private container: ComponentContainer, elRef: ElementRef) {
+    super(elRef.nativeElement);
 
     this.container.stateRequestEvent = () => this.handleContainerStateRequestEvent();
 

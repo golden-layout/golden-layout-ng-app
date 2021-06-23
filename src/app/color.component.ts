@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, ElementRef, Inject } from '@angular/core';
 import { ComponentContainer } from 'golden-layout';
 import { BaseComponentDirective } from './base-component.directive';
 
@@ -10,6 +10,11 @@ import { BaseComponentDirective } from './base-component.directive';
     <p [style.color]="color">id: "{{id}}"</p>
   `,
   styles: [`
+    :host {
+      position: absolute;
+      z-index: 31;
+    }
+
     #title {
       textAlign: left;
     }
@@ -23,8 +28,8 @@ export class ColorComponent extends BaseComponentDirective {
   public initialColor: string;
   public id: string;
 
-  constructor(@Inject(BaseComponentDirective.GoldenLayoutContainerInjectionToken) private container: ComponentContainer) {
-    super();
+  constructor(@Inject(BaseComponentDirective.GoldenLayoutContainerInjectionToken) private container: ComponentContainer, elRef: ElementRef) {
+    super(elRef.nativeElement);
 
     this.title = this.container.title;
     this.id = this.container.parent.id;

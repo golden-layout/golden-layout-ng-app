@@ -1,8 +1,6 @@
-import { ApplicationRef, Component, ComponentRef, ElementRef, EmbeddedViewRef, OnDestroy } from '@angular/core';
+import { Component, ComponentRef, ElementRef, OnDestroy } from '@angular/core';
 import {
-  ComponentContainer,
-  ComponentItem,
-  GoldenLayout,
+  ComponentContainer, GoldenLayout,
   ResolvedComponentItemConfig
 } from "golden-layout";
 import { BaseComponentDirective } from './base-component.directive';
@@ -19,23 +17,27 @@ import { TextComponent } from './text.component';
       height: 100%;
       width: 100%;
       padding: 0;
+      position: relative;
     }
     `,
   ],
 })
 export class GoldenLayoutHostComponent implements OnDestroy {
   private _goldenLayout: GoldenLayout;
-  private _containerMap = new Map<ComponentContainer, ComponentRef<BaseComponentDirective>>();
+  private _goldenLayoutElement: HTMLElement;
+  private _componentRefMap = new Map<ComponentContainer, ComponentRef<BaseComponentDirective>>();
+  private _goldenLayoutBoundingClientRect: DOMRect = new DOMRect();
 
   get goldenLayout() { return this._goldenLayout; }
 
   constructor(private _elRef: ElementRef<HTMLElement>,
-    private appRef: ApplicationRef,
     private goldenLayoutComponentService: GoldenLayoutComponentService,
   ) {
-    this._goldenLayout = new GoldenLayout(this._elRef.nativeElement);
-    this._goldenLayout.getComponentEvent = (container, itemConfig) => this.handleGetComponentEvent(container, itemConfig);
-    this._goldenLayout.releaseComponentEvent = (container, component) => this.handleReleaseComponentEvent(container, component);
+    this._goldenLayoutElement = this._elRef.nativeElement;
+    this._goldenLayout = new GoldenLayout(this._goldenLayoutElement);
+    this._goldenLayout.bindComponentEvent = (container, itemConfig) => this.handleBindComponentEvent(container, itemConfig);
+    this._goldenLayout.unbindComponentEvent = (container) => this.handleUnbindComponentEvent(container);
+    this._goldenLayout.beforeVirtualRectingEvent = (count) => this.handleBeforeVirtualRectingEvent(count)
 
     this.goldenLayoutComponentService.registerComponentType(ColorComponent.name, ColorComponent);
     this.goldenLayoutComponentService.registerComponentType(TextComponent.name, TextComponent);
@@ -51,31 +53,58 @@ export class GoldenLayoutHostComponent implements OnDestroy {
   }
 
   getComponentRef(container: ComponentContainer) {
-    return this._containerMap.get(container);
+    return this._componentRefMap.get(container);
   }
 
-  private handleGetComponentEvent(container: ComponentContainer, itemConfig: ResolvedComponentItemConfig) {
+  private handleBindComponentEvent(container: ComponentContainer, itemConfig: ResolvedComponentItemConfig) {
     const componentType = itemConfig.componentType;
     const componentRef = this.goldenLayoutComponentService.createComponent(componentType, container);
+    const component = componentRef.instance;
+    const componentRootElement = component.rootHtmlElement;
 
-    this.appRef.attachView(componentRef.hostView);
-
-    const domElem = (componentRef.hostView as EmbeddedViewRef<unknown>).rootNodes[0] as HTMLElement;
-    container.element.appendChild(domElem);
-
-    this._containerMap.set(container, componentRef);
-
-    return componentRef.instance;
+    this._goldenLayoutElement.appendChild(componentRootElement);
+    this._componentRefMap.set(container, componentRef);
+    
+    container.virtualRectingRequiredEvent = (container, width, height) => this.handleContainerVirtualRectingRequiredEvent(container, width, height);
+    container.virtualVisibilityChangeRequiredEvent = (container, visible) => this.handleContainerVisibilityChangeRequiredEvent(container, visible);
   }
 
-  private handleReleaseComponentEvent(container: ComponentContainer, component: ComponentItem.Component) {
-    const componentRef = this._containerMap.get(container);
+  private handleUnbindComponentEvent(container: ComponentContainer) {
+    const componentRef = this._componentRefMap.get(container);
     if (componentRef === undefined) {
-      throw new Error('Could not release component. Container not found');
-    } else {
-      this.appRef.detachView(componentRef.hostView);
-      componentRef.destroy();
-      this._containerMap.delete(container);
+      throw new Error('Could not unbind component. Container not found');
     }
+    const component = componentRef.instance;
+    const componentRootElement = component.rootHtmlElement;
+
+    this._goldenLayoutElement.removeChild(componentRootElement);
+    this._componentRefMap.delete(container);
+    componentRef.destroy();
+  }
+
+  private handleBeforeVirtualRectingEvent(count: number) {
+    this._goldenLayoutBoundingClientRect = this._goldenLayoutElement.getBoundingClientRect();
+  }
+
+  private handleContainerVirtualRectingRequiredEvent(container: ComponentContainer, width: number, height: number) {
+    const containerBoundingClientRect = container.element.getBoundingClientRect();
+    const left = containerBoundingClientRect.left - this._goldenLayoutBoundingClientRect.left;
+    const top = containerBoundingClientRect.top - this._goldenLayoutBoundingClientRect.top;
+
+    const componentRef = this._componentRefMap.get(container);
+    if (componentRef === undefined) {
+        throw new Error('handleContainerVirtualRectingRequiredEvent: ComponentRef not found');
+    }
+    const component = componentRef.instance;
+    component.setPositionAndSize(left, top, width, height);
+  }
+
+  private handleContainerVisibilityChangeRequiredEvent(container: ComponentContainer, visible: boolean) {
+    const componentRef = this._componentRefMap.get(container);
+    if (componentRef === undefined) {
+        throw new Error('handleContainerVisibilityChangeRequiredEvent: ComponentRef not found');
+    }
+    const component = componentRef.instance;
+    component.setVisibility(visible);
   }
 }
