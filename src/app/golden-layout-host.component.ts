@@ -1,6 +1,7 @@
-import { Component, ComponentRef, ElementRef, OnDestroy, ViewChild, ViewContainerRef } from '@angular/core';
+import { ApplicationRef, Component, ComponentRef, ElementRef, EmbeddedViewRef, OnDestroy, ViewChild, ViewContainerRef } from '@angular/core';
 import {
   ComponentContainer, GoldenLayout,
+  LogicalZIndex,
   ResolvedComponentItemConfig
 } from "golden-layout";
 import { BaseComponentDirective } from './base-component.directive';
@@ -25,21 +26,26 @@ import { TextComponent } from './text.component';
 export class GoldenLayoutHostComponent implements OnDestroy {
   private _goldenLayout: GoldenLayout;
   private _goldenLayoutElement: HTMLElement;
+  private _virtualActive = true;
+  private _viewContainerRefActive = true;
   private _componentRefMap = new Map<ComponentContainer, ComponentRef<BaseComponentDirective>>();
   private _goldenLayoutBoundingClientRect: DOMRect = new DOMRect();
 
   @ViewChild('componentViewContainer', { read: ViewContainerRef, static: true }) private _componentViewContainerRef: ViewContainerRef;
 
   get goldenLayout() { return this._goldenLayout; }
+  get virtualActive() { return this._virtualActive; }
+  get viewContainerRefActive() { return this._viewContainerRefActive; }
 
-  constructor(private _elRef: ElementRef<HTMLElement>,
+  constructor(private _appRef: ApplicationRef,
+    private _elRef: ElementRef<HTMLElement>,
     private goldenLayoutComponentService: GoldenLayoutComponentService,
   ) {
     this._goldenLayoutElement = this._elRef.nativeElement;
     this._goldenLayout = new GoldenLayout(this._goldenLayoutElement);
     this._goldenLayout.bindComponentEvent = (container, itemConfig) => this.handleBindComponentEvent(container, itemConfig);
     this._goldenLayout.unbindComponentEvent = (container) => this.handleUnbindComponentEvent(container);
-    this._goldenLayout.beforeVirtualRectingEvent = (count) => this.handleBeforeVirtualRectingEvent(count)
+    this._goldenLayout.beforeVirtualRectingEvent = (count) => this.handleBeforeVirtualRectingEvent(count);
 
     this.goldenLayoutComponentService.registerComponentType(ColorComponent.name, ColorComponent);
     this.goldenLayoutComponentService.registerComponentType(TextComponent.name, TextComponent);
@@ -48,6 +54,22 @@ export class GoldenLayoutHostComponent implements OnDestroy {
 
   ngOnDestroy() {
     this._goldenLayout.destroy();
+  }
+
+  setVirtualActive(value: boolean) {
+    this._goldenLayout.clear();
+    this._virtualActive = value;
+    if (!this._virtualActive) {
+      this._viewContainerRefActive = false;
+    }
+  }
+
+  setViewContainerRefActive(value: boolean) {
+    this._goldenLayout.clear();
+    if (value && !this.virtualActive) {
+      throw new Error('ViewContainerRef active only possible if VirtualActive');
+    }
+    this._viewContainerRefActive = value;
   }
 
   setSize(width: number, height: number) {
@@ -61,12 +83,31 @@ export class GoldenLayoutHostComponent implements OnDestroy {
   private handleBindComponentEvent(container: ComponentContainer, itemConfig: ResolvedComponentItemConfig) {
     const componentType = itemConfig.componentType;
     const componentRef = this.goldenLayoutComponentService.createComponent(componentType, container);
-    
-    container.virtualRectingRequiredEvent = (container, width, height) => this.handleContainerVirtualRectingRequiredEvent(container, width, height);
-    container.virtualVisibilityChangeRequiredEvent = (container, visible) => this.handleContainerVisibilityChangeRequiredEvent(container, visible);
 
-    this._componentViewContainerRef.insert(componentRef.hostView);
     this._componentRefMap.set(container, componentRef);
+
+    if (this._virtualActive) {
+      container.virtualRectingRequiredEvent = (container, width, height) => this.handleContainerVirtualRectingRequiredEvent(container, width, height);
+      container.virtualVisibilityChangeRequiredEvent = (container, visible) => this.handleContainerVisibilityChangeRequiredEvent(container, visible);
+      container.virtualZIndexChangeRequiredEvent = (container, logicalZIndex, defaultZIndex) => this.handleContainerVirtualZIndexChangeRequiredEvent(container, logicalZIndex, defaultZIndex);
+
+      if (this._viewContainerRefActive) {
+        this._componentViewContainerRef.insert(componentRef.hostView);
+      } else {
+        this._appRef.attachView(componentRef.hostView);
+        const component = componentRef.instance;
+        const componentRootElement = component.rootHtmlElement;
+        this._goldenLayoutElement.appendChild(componentRootElement);
+      }
+
+      return;
+
+    } else {
+      this._appRef.attachView(componentRef.hostView);
+      const domElem = (componentRef.hostView as EmbeddedViewRef<unknown>).rootNodes[0] as HTMLElement;
+      container.element.appendChild(domElem);
+      return componentRef.instance;
+    }
   }
 
   private handleUnbindComponentEvent(container: ComponentContainer) {
@@ -76,11 +117,29 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     }
     this._componentRefMap.delete(container);
 
-    const viewRefIndex = this._componentViewContainerRef.indexOf(componentRef.hostView);
-    if (viewRefIndex < 0) {
-      throw new Error('Could not unbind component. ViewRef not found');
+    const hostView = componentRef.hostView;
+
+    if (container.virtual) {
+      if (this._viewContainerRefActive) {
+        const viewRefIndex = this._componentViewContainerRef.indexOf(hostView);
+        if (viewRefIndex < 0) {
+          throw new Error('Could not unbind component. ViewRef not found');
+        }
+        this._componentViewContainerRef.remove(viewRefIndex);
+      } else {
+        const component = componentRef.instance;
+        const componentRootElement = component.rootHtmlElement;
+        this._goldenLayoutElement.removeChild(componentRootElement);
+        this._appRef.detachView(hostView);
+      }
+    } else {
+      const component = componentRef.instance;
+      const componentRootElement = component.rootHtmlElement;
+      container.element.removeChild(componentRootElement);
+      this._appRef.detachView(hostView);
     }
-    this._componentViewContainerRef.remove(viewRefIndex);
+
+    componentRef.destroy();
   }
 
   private handleBeforeVirtualRectingEvent(count: number) {
@@ -107,5 +166,14 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     }
     const component = componentRef.instance;
     component.setVisibility(visible);
+  }
+
+  private handleContainerVirtualZIndexChangeRequiredEvent(container: ComponentContainer, logicalZIndex: LogicalZIndex, defaultZIndex: string) {
+    const componentRef = this._componentRefMap.get(container);
+    if (componentRef === undefined) {
+        throw new Error('handleContainerVirtualZIndexChangeRequiredEvent: ComponentRef not found');
+    }
+    const component = componentRef.instance;
+    component.setZIndex(defaultZIndex);
   }
 }

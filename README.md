@@ -15,15 +15,15 @@ To run the application:
 
 ## Techniques
 
-### Version 2
+Can either test with "virtual with events" or "embedded with events" binding.
 
-Version 2 uses Golden Layout's virtual components.
+With "virtual with events" binding, components can be connected to the Golden Layout host component using either a View Container (the normal Angular design) or using "Application Ref" (the technique used in version 1). There may be some performance advantages with using "Application Ref" instead of a View Container.
 
-### Version 1
+Earlier versions of this application used Golden Layout's `getComponentEvent` and `releaseComponentEvent`. These events are now deprecated and virtual components should now be used instead.
 
-Version 1 used a technique written up by Carlos Roso: [Angular Pro Tip: How to dynamically create components in \<body\>](https://medium.com/hackernoon/angular-pro-tip-how-to-dynamically-create-components-in-body-ba200cc289e6)
+### Acknowledgement
+
+The "Application Ref" technique was written up by Carlos Roso: [Angular Pro Tip: How to dynamically create components in \<body\>](https://medium.com/hackernoon/angular-pro-tip-how-to-dynamically-create-components-in-body-ba200cc289e6)
 
 Thanks also to ttquang1063750 whose post on Stack Overflow pointed me in this direction:
   [https://stackoverflow.com/questions/64478364/load-component-to-html-element](https://stackoverflow.com/questions/64478364/load-component-to-html-element)
-
-This was implemented with Golden Layout's `getComponentEvent` and `releaseComponentEvent`. These events are deprecated and virtual components should now be used instead.

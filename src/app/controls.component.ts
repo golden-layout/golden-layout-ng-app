@@ -3,16 +3,61 @@ import {
   DragSource,
   GoldenLayout,
   LayoutConfig,
-  ResolvedLayoutConfig } from "golden-layout";
+  ResolvedLayoutConfig
+} from "golden-layout";
+import { ColorComponent } from "./color.component";
 import { GoldenLayoutComponentService } from './golden-layout-component.service';
 import { GoldenLayoutHostComponent } from './golden-layout-host.component';
 import { predefinedLayoutNames, predefinedLayouts } from './predefined-layouts';
 import { TextComponent } from './text.component';
-import { ColorComponent } from "./color.component";
 
 @Component({
   selector: 'app-controls',
   template: `
+    <section id="virtualOrEmbeddedSection">
+      <section id="embeddedSection">
+        <section id="embeddedRadioSection">
+          <input #embeddedRadio
+            id="embeddedRadio"
+            type="radio"
+            name="virtualOrEmbedded"
+            (click)="handleEmbeddedRadioClick()"
+          />
+          <label for="embeddedRadio">Embedded</label>
+        </section>
+      </section>
+      <section id="virtualSection">
+        <section id="virtualRadioSection">
+          <input #virtualRadio
+            id="virtualRadio"
+            type="radio"
+            name="virtualOrEmbedded"
+            (click)="handleVirtualRadioClick()"
+          />
+          <label for="virtualRadio">Virtual</label>
+        </section>
+        <section id="viewComponentRefOrAppRefSection">
+          <section id="viewComponentRefRadioSection">
+            <input #viewComponentRefRadio
+              id="viewComponentRefRadio"
+              type="radio"
+              name="viewComponentRefOrAppRef"
+              (click)="handleViewComponentRefRadioClick()"
+            />
+            <label for="viewComponentRefRadio">View Comp Ref</label>
+          </section>
+          <section id="appRefRadioSection">
+            <input #appRefRadio
+              id="appRefRadio"
+              type="radio"
+              name="viewComponentRefOrAppRef"
+              (click)="handleAppRefRadioClick()"
+            />
+            <label for="appRefRadio">App Ref</label>
+          </section>
+        </section>
+      </section>
+    </section>
     <section id="addComponentSection">
       <select #registeredComponentTypeSelect
         id="registeredComponentTypeSelect"
@@ -75,6 +120,11 @@ import { ColorComponent } from "./color.component";
       cursor: move;
     }
 
+    #viewComponentRefOrAppRefSection {
+      display: flex;
+      margin-left: 1em;
+    }
+
     #addComponentSection {
       display: flex;
       flex-direction: row;
@@ -112,7 +162,10 @@ export class ControlsComponent implements AfterViewInit, OnDestroy {
   private _selectedLayoutName: string;
   private _dragSources: Array<DragSource | undefined> = [];
 
-  @ViewChild('dragMe') private dragMeElementRef?: ElementRef;
+  @ViewChild('dragMe') private _dragMeElementRef: ElementRef;
+  @ViewChild('virtualRadio') private _virtualRadioElementRef: ElementRef<HTMLInputElement>;
+  @ViewChild('viewComponentRefRadio') private _viewComponentRefRadioElementRef: ElementRef<HTMLInputElement>;
+  @ViewChild('appRefRadio') private _appRefRadioElementRef: ElementRef<HTMLInputElement>;
 
   public registeredComponentTypeNames: readonly string[];
   public initialRegisteredComponentTypeName: string;
@@ -145,6 +198,24 @@ export class ControlsComponent implements AfterViewInit, OnDestroy {
   setGoldenLayoutHostComponent(value: GoldenLayoutHostComponent) {
     this._goldenLayoutHostComponent = value;
     this._goldenLayout = this._goldenLayoutHostComponent.goldenLayout;
+  }
+
+  handleEmbeddedRadioClick() {
+    this._goldenLayoutHostComponent.setVirtualActive(this._virtualRadioElementRef.nativeElement.checked);
+    this.updateViewComponentRefRadio();
+  }
+
+  handleVirtualRadioClick() {
+    this._goldenLayoutHostComponent.setVirtualActive(this._virtualRadioElementRef.nativeElement.checked);
+    this.updateViewComponentRefRadio();
+  }
+
+  handleViewComponentRefRadioClick() {
+    this._goldenLayoutHostComponent.setViewContainerRefActive(this._viewComponentRefRadioElementRef.nativeElement.checked);
+  }
+
+  handleAppRefRadioClick() {
+    this._goldenLayoutHostComponent.setViewContainerRefActive(!this._viewComponentRefRadioElementRef.nativeElement.checked);
   }
 
   handleRegisteredComponentTypeSelectChange(value: string) {
@@ -200,6 +271,8 @@ export class ControlsComponent implements AfterViewInit, OnDestroy {
   }
 
   private initialiseControls() {
+    this._virtualRadioElementRef.nativeElement.checked = this._goldenLayoutHostComponent.virtualActive;
+    this.updateViewComponentRefRadio();
     this.registeredComponentTypeNames = this._goldenLayoutComponentService.getRegisteredComponentTypeNames();
     this._selectedRegisteredComponentTypeName = this.registeredComponentTypeNames[0]
     this.initialRegisteredComponentTypeName = this._selectedRegisteredComponentTypeName;
@@ -212,7 +285,7 @@ export class ControlsComponent implements AfterViewInit, OnDestroy {
   }
 
   private initialiseDragSources() {
-    this.loadDragSource('Drag me !', ColorComponent.name, this.dragMeElementRef);
+    this.loadDragSource('Drag me !', ColorComponent.name, this._dragMeElementRef);
   }
 
   private loadDragSource(title: string, componentName: string, element: ElementRef | undefined): void {
@@ -229,5 +302,14 @@ export class ControlsComponent implements AfterViewInit, OnDestroy {
       return item;
     };
     this._dragSources.push(this._goldenLayout.newDragSource(element?.nativeElement, config));
+  }
+
+  private updateViewComponentRefRadio() {
+    const viewComponentRefActive = this._goldenLayoutHostComponent.viewContainerRefActive;
+    this._viewComponentRefRadioElementRef.nativeElement.checked = viewComponentRefActive;
+    this._appRefRadioElementRef.nativeElement.checked = !viewComponentRefActive;
+    const virtualActive = this._goldenLayoutHostComponent.virtualActive;
+    this._viewComponentRefRadioElementRef.nativeElement.disabled = !virtualActive;
+    this._appRefRadioElementRef.nativeElement.disabled = !virtualActive;
   }
 }

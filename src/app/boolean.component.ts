@@ -10,7 +10,7 @@ import { BaseComponentDirective } from './base-component.directive';
   styles: [`
     :host {
       position: absolute;
-      z-index: 31;
+      overflow: hidden;
     }
 
     #input {

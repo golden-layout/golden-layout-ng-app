@@ -24,6 +24,10 @@ export abstract class BaseComponentDirective {
         }
     }
 
+    setZIndex(value: string) {
+        this.rootHtmlElement.style.zIndex = value;
+    }
+
     private numberToPixels(value: number): string {
         return value.toString(10) + 'px';
     }
