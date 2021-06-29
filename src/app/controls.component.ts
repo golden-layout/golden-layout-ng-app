@@ -215,7 +215,7 @@ export class ControlsComponent implements AfterViewInit, OnDestroy {
   }
 
   handleAppRefRadioClick() {
-    this._goldenLayoutHostComponent.setViewContainerRefActive(!this._viewComponentRefRadioElementRef.nativeElement.checked);
+    this._goldenLayoutHostComponent.setViewContainerRefActive(this._viewComponentRefRadioElementRef.nativeElement.checked);
   }
 
   handleRegisteredComponentTypeSelectChange(value: string) {

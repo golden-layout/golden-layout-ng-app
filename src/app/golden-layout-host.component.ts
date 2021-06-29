@@ -31,6 +31,11 @@ export class GoldenLayoutHostComponent implements OnDestroy {
   private _componentRefMap = new Map<ComponentContainer, ComponentRef<BaseComponentDirective>>();
   private _goldenLayoutBoundingClientRect: DOMRect = new DOMRect();
 
+  private _goldenLayoutBindComponentEventListener =
+    (container: ComponentContainer, itemConfig: ResolvedComponentItemConfig) => this.handleBindComponentEvent(container, itemConfig);
+  private _goldenLayoutUnbindComponentEventListener =
+    (container: ComponentContainer) => this.handleUnbindComponentEvent(container);
+
   @ViewChild('componentViewContainer', { read: ViewContainerRef, static: true }) private _componentViewContainerRef: ViewContainerRef;
 
   get goldenLayout() { return this._goldenLayout; }
@@ -42,9 +47,11 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     private goldenLayoutComponentService: GoldenLayoutComponentService,
   ) {
     this._goldenLayoutElement = this._elRef.nativeElement;
-    this._goldenLayout = new GoldenLayout(this._goldenLayoutElement);
-    this._goldenLayout.bindComponentEvent = (container, itemConfig) => this.handleBindComponentEvent(container, itemConfig);
-    this._goldenLayout.unbindComponentEvent = (container) => this.handleUnbindComponentEvent(container);
+    this._goldenLayout = new GoldenLayout(
+      this._goldenLayoutElement,
+      this._goldenLayoutBindComponentEventListener,
+      this._goldenLayoutUnbindComponentEventListener,
+    );
     this._goldenLayout.beforeVirtualRectingEvent = (count) => this.handleBeforeVirtualRectingEvent(count);
 
     this.goldenLayoutComponentService.registerComponentType(ColorComponent.name, ColorComponent);
