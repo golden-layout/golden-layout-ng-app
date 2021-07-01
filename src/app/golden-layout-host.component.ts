@@ -87,9 +87,10 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     return this._componentRefMap.get(container);
   }
 
-  private handleBindComponentEvent(container: ComponentContainer, itemConfig: ResolvedComponentItemConfig) {
+  private handleBindComponentEvent(container: ComponentContainer, itemConfig: ResolvedComponentItemConfig): ComponentContainer.BindableComponent {
     const componentType = itemConfig.componentType;
     const componentRef = this.goldenLayoutComponentService.createComponent(componentType, container);
+    const component = componentRef.instance;
 
     this._componentRefMap.set(container, componentRef);
 
@@ -102,18 +103,18 @@ export class GoldenLayoutHostComponent implements OnDestroy {
         this._componentViewContainerRef.insert(componentRef.hostView);
       } else {
         this._appRef.attachView(componentRef.hostView);
-        const component = componentRef.instance;
         const componentRootElement = component.rootHtmlElement;
         this._goldenLayoutElement.appendChild(componentRootElement);
       }
-
-      return;
-
     } else {
       this._appRef.attachView(componentRef.hostView);
       const domElem = (componentRef.hostView as EmbeddedViewRef<unknown>).rootNodes[0] as HTMLElement;
       container.element.appendChild(domElem);
-      return componentRef.instance;
+    }
+
+    return {
+      component,
+      virtual: this._virtualActive,
     }
   }
 
