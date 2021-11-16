@@ -40,3 +40,7 @@ export class BooleanComponent extends BaseComponentDirective {
     return this.value;
   }
 }
+
+export namespace BooleanComponent {
+  export const componentTypeName = 'Boolean';
+}

@@ -64,6 +64,7 @@ export class TextComponent extends BaseComponentDirective {
 }
 
 export namespace TextComponent {
+  export const componentTypeName = 'Text';
   export const undefinedTextValue = '<undefined>';
 
   type TextPropertyName = 'text';

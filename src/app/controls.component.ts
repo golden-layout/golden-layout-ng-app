@@ -233,7 +233,7 @@ export class ControlsComponent implements AfterViewInit, OnDestroy {
 
   handleAddTextComponentButtonClick() {
     // this demonstrates how to access created Angular component
-    const goldenLayoutComponent = this._goldenLayout.newComponent(TextComponent.name); // do not set state here
+    const goldenLayoutComponent = this._goldenLayout.newComponent(TextComponent.componentTypeName); // do not set state here
     const componentRef = this._goldenLayoutHostComponent.getComponentRef(goldenLayoutComponent.container);
     if (componentRef === undefined) {
       throw new Error('Unexpected error getting ComponentRef');
@@ -285,7 +285,7 @@ export class ControlsComponent implements AfterViewInit, OnDestroy {
   }
 
   private initialiseDragSources() {
-    this.loadDragSource('Drag me !', ColorComponent.name, this._dragMeElementRef);
+    this.loadDragSource('Drag me !', ColorComponent.componentTypeName, this._dragMeElementRef);
   }
 
   private loadDragSource(title: string, componentName: string, element: ElementRef | undefined): void {

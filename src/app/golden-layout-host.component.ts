@@ -54,9 +54,9 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     );
     this._goldenLayout.beforeVirtualRectingEvent = (count) => this.handleBeforeVirtualRectingEvent(count);
 
-    this.goldenLayoutComponentService.registerComponentType(ColorComponent.name, ColorComponent);
-    this.goldenLayoutComponentService.registerComponentType(TextComponent.name, TextComponent);
-    this.goldenLayoutComponentService.registerComponentType(BooleanComponent.name, BooleanComponent);
+    this.goldenLayoutComponentService.registerComponentType(ColorComponent.componentTypeName, ColorComponent);
+    this.goldenLayoutComponentService.registerComponentType(TextComponent.componentTypeName, TextComponent);
+    this.goldenLayoutComponentService.registerComponentType(BooleanComponent.componentTypeName, BooleanComponent);
   }
 
   ngOnDestroy() {

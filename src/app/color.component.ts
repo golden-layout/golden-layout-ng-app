@@ -61,5 +61,6 @@ export class ColorComponent extends BaseComponentDirective {
 }
 
 export namespace ColorComponent {
+  export const componentTypeName = 'Color';
   export const undefinedColor = 'MediumVioletRed';
 }
