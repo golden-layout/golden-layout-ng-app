@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import {
   DragSource,
   GoldenLayout,
@@ -110,6 +110,7 @@ import { TextComponent } from './text.component';
     :host {
       display: flex;
       flex-direction: column;
+      white-space: nowrap;
     }
 
     .control {
@@ -152,7 +153,7 @@ import { TextComponent } from './text.component';
   `
   ]
 })
-export class ControlsComponent implements AfterViewInit, OnDestroy {
+export class ControlsComponent implements OnDestroy {
   private _goldenLayoutHostComponent: GoldenLayoutHostComponent
   private _goldenLayout: GoldenLayout;
   private _savedLayout: ResolvedLayoutConfig | undefined;
@@ -183,10 +184,6 @@ export class ControlsComponent implements AfterViewInit, OnDestroy {
   ) {
   }
 
-  ngAfterViewInit() {
-    setTimeout(() => this.initialiseControls(), 0);
-  }
-
   ngOnDestroy() {
     for (const dragSource of this._dragSources) {
       if (dragSource) {
@@ -195,9 +192,21 @@ export class ControlsComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  setGoldenLayoutHostComponent(value: GoldenLayoutHostComponent) {
+  initialise(value: GoldenLayoutHostComponent) {
     this._goldenLayoutHostComponent = value;
     this._goldenLayout = this._goldenLayoutHostComponent.goldenLayout;
+
+    this._virtualRadioElementRef.nativeElement.checked = this._goldenLayoutHostComponent.virtualActive;
+    this.updateViewComponentRefRadio();
+    this.registeredComponentTypeNames = this._goldenLayoutComponentService.getRegisteredComponentTypeNames();
+    this._selectedRegisteredComponentTypeName = this.registeredComponentTypeNames[0]
+    this.initialRegisteredComponentTypeName = this._selectedRegisteredComponentTypeName;
+    this._componentTextValue = this.initialComponentTextValue;
+    this.layoutNames = predefinedLayoutNames;
+    this._selectedLayoutName = this.layoutNames[0]
+    this.initialLayoutName = this._selectedLayoutName;
+
+    this.initialiseDragSources();
   }
 
   handleEmbeddedRadioClick() {
@@ -268,20 +277,6 @@ export class ControlsComponent implements AfterViewInit, OnDestroy {
       const layoutConfig = LayoutConfig.fromResolved(this._savedLayout);
       this._goldenLayout.loadLayout(layoutConfig);
     }
-  }
-
-  private initialiseControls() {
-    this._virtualRadioElementRef.nativeElement.checked = this._goldenLayoutHostComponent.virtualActive;
-    this.updateViewComponentRefRadio();
-    this.registeredComponentTypeNames = this._goldenLayoutComponentService.getRegisteredComponentTypeNames();
-    this._selectedRegisteredComponentTypeName = this.registeredComponentTypeNames[0]
-    this.initialRegisteredComponentTypeName = this._selectedRegisteredComponentTypeName;
-    this._componentTextValue = this.initialComponentTextValue;
-    this.layoutNames = predefinedLayoutNames;
-    this._selectedLayoutName = this.layoutNames[0]
-    this.initialLayoutName = this._selectedLayoutName;
-
-    this.initialiseDragSources();
   }
 
   private initialiseDragSources() {

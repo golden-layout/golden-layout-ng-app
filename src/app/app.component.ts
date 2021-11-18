@@ -29,11 +29,19 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   @ViewChild('goldenLayoutHost') private _goldenLayoutHostComponent: GoldenLayoutHostComponent; 
 
   ngAfterViewInit() {
-    this._controlsElement = this._controlsComponent.element;
-    this._controlsComponent.setGoldenLayoutHostComponent(this._goldenLayoutHostComponent);
+    setTimeout(() => {
+      this._controlsElement = this._controlsComponent.element;
 
-    globalThis.addEventListener('resize', this._windowResizeListener);
-    setTimeout(() => this.resizeGoldenLayout(), 0);
+      this._goldenLayoutHostComponent.initialise();
+      this._controlsComponent.initialise(this._goldenLayoutHostComponent);
+  
+      if (this._goldenLayoutHostComponent.isGoldenLayoutSubWindow) {
+        this._controlsElement.style.display = 'none';
+      }
+  
+      globalThis.addEventListener('resize', this._windowResizeListener);
+      setTimeout(() => this.resizeGoldenLayout(), 0);
+    }, 0);
   }
 
   ngOnDestroy() {

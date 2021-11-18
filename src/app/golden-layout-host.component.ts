@@ -27,7 +27,7 @@ export class GoldenLayoutHostComponent implements OnDestroy {
   private _goldenLayout: GoldenLayout;
   private _goldenLayoutElement: HTMLElement;
   private _virtualActive = true;
-  private _viewContainerRefActive = true;
+  private _viewContainerRefActive = false;
   private _componentRefMap = new Map<ComponentContainer, ComponentRef<BaseComponentDirective>>();
   private _goldenLayoutBoundingClientRect: DOMRect = new DOMRect();
 
@@ -41,18 +41,13 @@ export class GoldenLayoutHostComponent implements OnDestroy {
   get goldenLayout() { return this._goldenLayout; }
   get virtualActive() { return this._virtualActive; }
   get viewContainerRefActive() { return this._viewContainerRefActive; }
+  get isGoldenLayoutSubWindow() { return this._goldenLayout.isSubWindow; }
 
   constructor(private _appRef: ApplicationRef,
     private _elRef: ElementRef<HTMLElement>,
     private goldenLayoutComponentService: GoldenLayoutComponentService,
   ) {
     this._goldenLayoutElement = this._elRef.nativeElement;
-    this._goldenLayout = new GoldenLayout(
-      this._goldenLayoutElement,
-      this._goldenLayoutBindComponentEventListener,
-      this._goldenLayoutUnbindComponentEventListener,
-    );
-    this._goldenLayout.beforeVirtualRectingEvent = (count) => this.handleBeforeVirtualRectingEvent(count);
 
     this.goldenLayoutComponentService.registerComponentType(ColorComponent.componentTypeName, ColorComponent);
     this.goldenLayoutComponentService.registerComponentType(TextComponent.componentTypeName, TextComponent);
@@ -61,6 +56,19 @@ export class GoldenLayoutHostComponent implements OnDestroy {
 
   ngOnDestroy() {
     this._goldenLayout.destroy();
+  }
+
+  initialise() {
+    this._goldenLayout = new GoldenLayout(
+      this._goldenLayoutElement,
+      this._goldenLayoutBindComponentEventListener,
+      this._goldenLayoutUnbindComponentEventListener,
+    );
+    this._goldenLayout.beforeVirtualRectingEvent = (count) => this.handleBeforeVirtualRectingEvent(count);
+
+    if (this._goldenLayout.isSubWindow) {
+      this._goldenLayout.checkAddDefaultPopinButton();
+    }
   }
 
   setVirtualActive(value: boolean) {
