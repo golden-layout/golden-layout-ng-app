@@ -19,7 +19,7 @@
     "@angular/platform-browser-dynamic": "^13.1.1",
     "@angular/router": "^13.1.1",
     "golden-layout": "^2.4.0",
-    "rxjs": "~6.6.6",
+    "rxjs": "^7.5.1",
     "tslib": "^2.1.0",
     "zone.js": "~0.11.4"
   },
@@ -27,7 +27,7 @@
     "@angular-devkit/build-angular": "^13.1.2",
     "@angular/cli": "^13.1.2",
     "@angular/compiler-cli": "^13.1.1",
-    "@types/node": "^14.14.31",
+    "@types/node": "^17.0.5",
     "ts-node": "^10.1.0",
     "tslint": "~6.1.0",
     "typescript": "~4.5.4"
