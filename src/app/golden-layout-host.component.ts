@@ -64,6 +64,7 @@ export class GoldenLayoutHostComponent implements OnDestroy {
       this._goldenLayoutBindComponentEventListener,
       this._goldenLayoutUnbindComponentEventListener,
     );
+    this._goldenLayout.resizeWithContainerAutomatically = true;
     this._goldenLayout.beforeVirtualRectingEvent = (count) => this.handleBeforeVirtualRectingEvent(count);
 
     if (this._goldenLayout.isSubWindow) {
